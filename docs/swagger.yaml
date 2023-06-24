@@ -1,0 +1,87 @@
+definitions:
+  model.Meta:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      record_count:
+        type: integer
+    type: object
+  model.OverlappingRequest:
+    properties:
+      events:
+        items:
+          items:
+            type: integer
+          type: array
+        type: array
+    required:
+    - events
+    type: object
+  model.OverlappingResponse:
+    properties:
+      overlapping_events:
+        items:
+          items:
+            type: integer
+          type: array
+        type: array
+    type: object
+  model.Response:
+    properties:
+      meta:
+        $ref: '#/definitions/model.Meta'
+      records:
+        items: {}
+        type: array
+    type: object
+  model.ResponseError:
+    properties:
+      developer_message:
+        type: string
+      status_code:
+        type: integer
+      user_message:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /event:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request body
+        in: body
+        name: key
+        required: true
+        schema:
+          $ref: '#/definitions/model.OverlappingRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                meta:
+                  $ref: '#/definitions/model.Meta'
+                records:
+                  items:
+                    $ref: '#/definitions/model.OverlappingResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ResponseError'
+      summary: calculate overlapping events.
+      tags:
+      - event
+swagger: "2.0"
