@@ -8,11 +8,6 @@
 *.so
 *.dylib
 
-# Dependency directories
-/vendor/
-/go.sum
-/go.mod
-
 # Build directories
 /build/
 /bin/
