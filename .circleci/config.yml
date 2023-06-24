@@ -14,11 +14,9 @@ jobs:
     # See: https://circleci.com/docs/configuration-reference/#steps
     steps:
       - checkout
-      # Install any additional dependencies
-      - run: go get ./...
 
       # Build the application
-      - run: go build
+      - run: go build -o app
 
       # Run tests
       - run: go test -v ./...
