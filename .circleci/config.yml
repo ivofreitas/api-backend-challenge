@@ -2,9 +2,9 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: golang:1.19  # Replace <version> with the desired Go version
+      - image: golang:1.19
     steps:
       - checkout
       - run:
           name: Build and test
-          command: go mod download && go test ./...
+          command: go build ./... && go test ./...
