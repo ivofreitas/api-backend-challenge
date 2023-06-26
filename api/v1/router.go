@@ -27,13 +27,15 @@ func Register(g *echo.Group, opts Option) {
 
 	env := config.GetEnv()
 	doc := env.Doc
-	swagger.Register(swagger.Options{
-		Title:       doc.Title,
-		Description: doc.Description,
-		Version:     doc.Version,
-		BasePath:    env.Server.BasePath,
-		Group:       g.Group("/swagger"),
-	})
+	if doc.Enabled {
+		swagger.Register(swagger.Options{
+			Title:       doc.Title,
+			Description: doc.Description,
+			Version:     doc.Version,
+			BasePath:    env.Server.BasePath,
+			Group:       g.Group("/swagger"),
+		})
+	}
 
 	g.GET("/health", health.Handle)
 

@@ -37,6 +37,7 @@ type Log struct {
 type Doc struct {
 	Title       string `mapstructure:"title"`
 	Description string `mapstructure:"description"`
+	Enabled     bool   `mapstructure:"enabled"`
 	Version     string `mapstructure:"version"`
 }
 
