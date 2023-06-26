@@ -1,5 +1,6 @@
 install:
 	go get ./...
+	swag init
 
 start:
 	go run main.go
@@ -9,9 +10,6 @@ test:
 
 cover:
 	go test -cover ./...
-
-doc:
-	swag init
 
 migrate-up:
 	go run main.go migrate up

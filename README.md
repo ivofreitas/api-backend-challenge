@@ -146,6 +146,7 @@ Required fields:
 ```
 POST /v1/task
 Content-Type: application/json
+Authorization: Bearer <token>
 
 {
     "summary":"12345",
@@ -158,7 +159,7 @@ Content-Type: application/json
 ```
 HTTP/1.1 201 Created
 Content-Type: application/json
-Authorization: Bearer <token>
+
 {
     "meta": {
         "offset": 0,
@@ -192,7 +193,7 @@ GET /v1/task
 ##### Response
 
 ```
-HTTP/1.1 201 Created
+HTTP/1.1 200 OK
 Content-Type: application/json
 Authorization: Bearer <token>
 {
