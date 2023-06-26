@@ -26,6 +26,7 @@ func TestCreate(t *testing.T) {
 	testCases := []struct {
 		Name          string
 		Request       *model.Task
+		Role          string
 		RepositoryErr error
 		MarshalErr    error
 		PublisherErr  error
@@ -34,12 +35,19 @@ func TestCreate(t *testing.T) {
 		{
 			Name: "Test Case 1",
 			Request: &model.Task{
-				Summary:     "Hello. This is my summary",
+				Summary:     "Hello manager. This is my summary",
 				PerformedAt: time.Now(),
 			},
 		},
 		{
 			Name: "Test Case 2",
+			Request: &model.Task{
+				Summary:     "Hello technician. This is my summary",
+				PerformedAt: time.Now(),
+			},
+		},
+		{
+			Name: "Test Case 3",
 			Request: &model.Task{
 				Summary:     "So sad! Repository is going to fail!",
 				PerformedAt: time.Now(),
@@ -48,7 +56,7 @@ func TestCreate(t *testing.T) {
 			ExpectedError: repositoryErr,
 		},
 		{
-			Name: "Test Case 3",
+			Name: "Test Case 4",
 			Request: &model.Task{
 				Summary:     "So sad! Marshal is going to fail!",
 				PerformedAt: time.Now(),
@@ -61,7 +69,7 @@ func TestCreate(t *testing.T) {
 		t.Run(tc.Name, func(t *testing.T) {
 			ctx := gocontext.Background()
 			ctx = context.Set(ctx, "username", username)
-			ctx = context.Set(ctx, "role", model.Manager)
+			ctx = context.Set(ctx, "role", tc.Role)
 
 			repositoryMock := &mock.TaskRepositoryMock{}
 			repositoryMock.
@@ -96,6 +104,7 @@ func TestCreate(t *testing.T) {
 func TestList(t *testing.T) {
 	testCases := []struct {
 		Name             string
+		Role             string
 		RepositoryResult []*model.Task
 		RepositoryErr    error
 		PublisherErr     error
@@ -120,11 +129,24 @@ func TestList(t *testing.T) {
 					PerformedAt: time.Now(),
 				},
 			},
+			Role: model.Manager,
+		},
+		{
+			Name: "Test Case 2",
+			RepositoryResult: []*model.Task{
+				{
+					ID:          "1",
+					Summary:     "Hello. This the first record!",
+					PerformedAt: time.Now(),
+				},
+			},
+			Role: model.Tech,
 		},
 		{
 			Name:          "Test Case 2",
 			RepositoryErr: repositoryErr,
 			ExpectedError: repositoryErr,
+			Role:          model.Manager,
 		},
 		{
 			Name:             "Test Case 3",
@@ -136,12 +158,19 @@ func TestList(t *testing.T) {
 		t.Run(tc.Name, func(t *testing.T) {
 			ctx := gocontext.Background()
 			ctx = context.Set(ctx, "username", username)
-			ctx = context.Set(ctx, "role", model.Manager)
+			ctx = context.Set(ctx, "role", tc.Role)
 
 			repositoryMock := &mock.TaskRepositoryMock{}
-			repositoryMock.
-				On("List", ctx).
-				Return(tc.RepositoryResult, tc.RepositoryErr)
+			switch tc.Role {
+			case model.Manager:
+				repositoryMock.
+					On("List", ctx).
+					Return(tc.RepositoryResult, tc.RepositoryErr)
+			case model.Tech:
+				repositoryMock.
+					On("ListByUsername", ctx, username).
+					Return(tc.RepositoryResult, tc.RepositoryErr)
+			}
 
 			jsonMock := mock.JsonMock{}
 
