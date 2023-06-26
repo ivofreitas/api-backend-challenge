@@ -188,6 +188,7 @@ List all task for a given user. It will evaluate role as:
 
 ```
 GET /v1/task
+Authorization: Bearer <token>
 ```
 
 ##### Response
@@ -195,7 +196,6 @@ GET /v1/task
 ```
 HTTP/1.1 200 OK
 Content-Type: application/json
-Authorization: Bearer <token>
 
 {
     "meta": {
