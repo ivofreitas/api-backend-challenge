@@ -56,6 +56,12 @@ func (me Unauthorized) Error() string {
 	return fmt.Sprintf("Error: Status %v and Message %s", me.StatusCode, me.DeveloperMessage)
 }
 
+type Forbidden ResponseError
+
+func (me Forbidden) Error() string {
+	return fmt.Sprintf("Error: Status %v and Message %s", me.StatusCode, me.DeveloperMessage)
+}
+
 // Custom - Custom errors
 type Custom ResponseError
 
@@ -87,9 +93,14 @@ func ErrorDiscover(i interface{}) *ResponseError {
 		statusCode = http.StatusConflict
 
 	case Unauthorized:
-		developerMessage = "Unauthorized - make sure the header parameter Authorization is valid"
+		developerMessage = e.DeveloperMessage
 		userMessage = "You are not authorized to perform this operation"
 		statusCode = http.StatusUnauthorized
+
+	case Forbidden:
+		developerMessage = "Forbidden - access denied"
+		userMessage = "Make sure you have access to this resource"
+		statusCode = http.StatusForbidden
 
 	case Custom:
 		developerMessage = e.DeveloperMessage
