@@ -10,8 +10,8 @@ type TaskRepositoryMock struct {
 	mock.Mock
 }
 
-func (m *TaskRepositoryMock) Create(ctx context.Context, task *model.Task) error {
-	args := m.Called(ctx, task)
+func (m *TaskRepositoryMock) Create(ctx context.Context, task *model.Task, username string) error {
+	args := m.Called(ctx, task, username)
 
 	var resultError error
 	if args.Get(0) != nil {
@@ -23,6 +23,17 @@ func (m *TaskRepositoryMock) Create(ctx context.Context, task *model.Task) error
 
 func (m *TaskRepositoryMock) List(ctx context.Context) ([]*model.Task, error) {
 	args := m.Called(ctx)
+
+	var resultError error
+	if args.Get(1) != nil {
+		resultError = args.Get(1).(error)
+	}
+
+	return args.Get(0).([]*model.Task), resultError
+}
+
+func (m *TaskRepositoryMock) ListByUsername(ctx context.Context, username string) ([]*model.Task, error) {
+	args := m.Called(ctx, username)
 
 	var resultError error
 	if args.Get(1) != nil {

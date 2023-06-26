@@ -36,7 +36,7 @@ func TestCreate(t *testing.T) {
 			Request: &model.User{
 				Username: "john.doe",
 				Password: "123456",
-				Role:     "admin",
+				Role:     "manager",
 			},
 		},
 		{
@@ -44,7 +44,7 @@ func TestCreate(t *testing.T) {
 			Request: &model.User{
 				Username: "john.doe",
 				Password: "123456",
-				Role:     "admin",
+				Role:     "manager",
 			},
 			GetRepoErr:    repoErr,
 			ExpectedError: repoErr,
@@ -54,7 +54,7 @@ func TestCreate(t *testing.T) {
 			Request: &model.User{
 				Username: "john.doe",
 				Password: "123456",
-				Role:     "admin",
+				Role:     "manager",
 			},
 			GetRepoUser: &model.User{
 				Username: "john.doe",
@@ -67,7 +67,7 @@ func TestCreate(t *testing.T) {
 			Request: &model.User{
 				Username: "john.doe",
 				Password: "123456",
-				Role:     "admin",
+				Role:     "manager",
 			},
 			PassHashErr:   passHashErr,
 			ExpectedError: passHashErr,
@@ -77,7 +77,7 @@ func TestCreate(t *testing.T) {
 			Request: &model.User{
 				Username: "john.doe",
 				Password: "123456",
-				Role:     "admin",
+				Role:     "manager",
 			},
 			CreateRepoErr: repoErr,
 			ExpectedError: repoErr,
@@ -136,7 +136,7 @@ func TestLogin(t *testing.T) {
 			GetRepoUser: &model.User{
 				Username: "john.doe",
 				Password: "123456",
-				Role:     "admin",
+				Role:     "manager",
 			},
 		},
 		{
@@ -157,7 +157,7 @@ func TestLogin(t *testing.T) {
 			GetRepoUser: &model.User{
 				Username: "john.doe",
 				Password: "123456",
-				Role:     "admin",
+				Role:     "manager",
 			},
 			PassHashErr:   invalidPassErr,
 			ExpectedError: invalidPassErr,

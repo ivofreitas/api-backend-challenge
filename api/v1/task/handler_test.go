@@ -1,10 +1,11 @@
 package task
 
 import (
-	"context"
+	gocontext "context"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	testifymock "github.com/stretchr/testify/mock"
+	"github.com/sword/api-backend-challenge/context"
 	"github.com/sword/api-backend-challenge/mock"
 	"github.com/sword/api-backend-challenge/model"
 	"testing"
@@ -15,6 +16,10 @@ var (
 	repositoryErr = errors.New("repository failed")
 	publisherErr  = errors.New("publisher failed")
 	marshalErr    = errors.New("marshal failed")
+)
+
+const (
+	username = "joe.doe"
 )
 
 func TestCreate(t *testing.T) {
@@ -54,11 +59,13 @@ func TestCreate(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			ctx := context.Background()
+			ctx := gocontext.Background()
+			ctx = context.Set(ctx, "username", username)
+			ctx = context.Set(ctx, "role", model.Manager)
 
 			repositoryMock := &mock.TaskRepositoryMock{}
 			repositoryMock.
-				On("Create", ctx, tc.Request).
+				On("Create", ctx, tc.Request, username).
 				Return(tc.RepositoryErr)
 
 			jsonMock := &mock.JsonMock{}
@@ -127,7 +134,9 @@ func TestList(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			ctx := context.Background()
+			ctx := gocontext.Background()
+			ctx = context.Set(ctx, "username", username)
+			ctx = context.Set(ctx, "role", model.Manager)
 
 			repositoryMock := &mock.TaskRepositoryMock{}
 			repositoryMock.

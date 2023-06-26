@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	testifymock "github.com/stretchr/testify/mock"
+	"github.com/sword/api-backend-challenge/context"
 	"github.com/sword/api-backend-challenge/log"
 	"github.com/sword/api-backend-challenge/mock"
 	"github.com/sword/api-backend-challenge/model"
@@ -57,6 +58,8 @@ func TestHandleCreate(t *testing.T) {
 
 			c := e.NewContext(req, rec)
 			ctx := log.InitParams(c.Request().Context())
+			ctx = context.Set(ctx, "username", "joe.doe")
+			ctx = context.Set(ctx, "role", "manager")
 			c.SetRequest(c.Request().WithContext(ctx))
 
 			e.Binder = NewBinder()

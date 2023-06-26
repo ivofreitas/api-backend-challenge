@@ -86,7 +86,7 @@ Content-Type: application/json
         {
             "id": "125edfd8-a7bd-4ddd-8429-278e935def82",
             "username": "john.doee",
-            "role": "admin"
+            "role": "manager"
         }
     ]
 }
