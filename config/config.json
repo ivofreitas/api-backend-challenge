@@ -25,7 +25,7 @@
     "conn_lifetime": "60s"
   },
   "kafka": {
-    "brokers": "localhost:9092",
-    "topic": "sword.task",
+    "brokers": ["localhost:9092"],
+    "topic": "sword.task"
   }
 }

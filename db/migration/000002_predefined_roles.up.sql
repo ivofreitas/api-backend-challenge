@@ -1,5 +1,5 @@
-INSERT INTO `sword.roles`
+INSERT INTO sword.roles
 VALUES
-    ("d4f12844-8828-4c68-8d13-a6b177751130", "ADMIN", NOW(), NOW()),
-    ("358df558-6edb-4529-88c4-4846b4644c9c", "MANAGER", NOW(), NOW()),
-    ("b79f7a9c-a36b-4776-ab37-bda71032ac89", "TECHNICIAN", NOW(), NOW());
+    ('9c06de8d-865a-4ed4-88d0-a445f2bd4f11', 'ADMIN', NOW(), NOW()),
+    ('59a2cc28-a219-47c2-945a-e520827bbfcd', 'MANAGER', NOW(), NOW()),
+    ('ca99ac9f-f26d-4aeb-8966-234c277ff7b4', 'TECHNICIAN', NOW(), NOW());

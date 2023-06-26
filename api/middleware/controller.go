@@ -20,8 +20,7 @@ type controller struct {
 }
 
 func NewController(fn HandlerFn, httpStatus int, param interface{}) *controller {
-	c := controller{fn, param, httpStatus}
-	return &c
+	return &controller{fn, param, httpStatus}
 }
 
 // Handle - Validate the request
