@@ -10,8 +10,7 @@ test:
 cover:
 	go test -cover ./...
 
-configure:
-	cp config/example.env config/.env
+doc:
 	swag init
 
 migrate-up:
