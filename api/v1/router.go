@@ -43,8 +43,8 @@ func Register(g *echo.Group, opts Option) {
 	taskList := middleware.NewController(taskHandler.List, http.StatusOK, nil)
 
 	taskGroup := g.Group("/task")
-	taskGroup.POST("", taskCreate.Handle, middleware.CheckRole("admin", "manager", "technician"))
-	taskGroup.GET("", taskList.Handle, middleware.CheckRole("admin", "manager"))
+	taskGroup.POST("", taskCreate.Handle, middleware.CheckRole("manager", "technician"))
+	taskGroup.GET("", taskList.Handle, middleware.CheckRole("manager", "technician"))
 
 	userRepo := usermysql.NewRepository(opts.DB)
 	userHandler := user.NewHandler(userRepo, bcrypt.GenerateFromPassword, bcrypt.CompareHashAndPassword, env.Authorization.Secret)
@@ -52,6 +52,6 @@ func Register(g *echo.Group, opts Option) {
 	userLogin := middleware.NewController(userHandler.Login, http.StatusCreated, new(model.LoginRequest))
 
 	userGroup := g.Group("/user")
-	userGroup.POST("", userCreate.Handle, middleware.CheckRole("admin"))
+	userGroup.POST("", userCreate.Handle)
 	userGroup.POST("/login", userLogin.Handle)
 }

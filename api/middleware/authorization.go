@@ -10,7 +10,7 @@ import (
 
 func Authorize(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		if strings.HasSuffix(c.Path(), "/health") || strings.HasSuffix(c.Path(), "/login") {
+		if strings.HasSuffix(c.Path(), "/health") || strings.HasSuffix(c.Path(), "/login") || strings.HasSuffix(c.Path(), "/user") {
 			return next(c)
 		}
 

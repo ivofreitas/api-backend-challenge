@@ -13,9 +13,9 @@ type LoginResponse struct {
 
 type User struct {
 	ID        string    `json:"id"`
-	Username  string    `json:"username"`
-	Password  string    `json:"password"`
-	Role      string    `json:"role"`
+	Username  string    `json:"username" validate:"required"`
+	Password  string    `json:"password" validate:"required"`
+	Role      string    `json:"role" validate:"required"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
