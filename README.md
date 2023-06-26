@@ -196,6 +196,7 @@ GET /v1/task
 HTTP/1.1 200 OK
 Content-Type: application/json
 Authorization: Bearer <token>
+
 {
     "meta": {
         "offset": 0,
