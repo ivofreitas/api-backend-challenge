@@ -12,7 +12,7 @@ type Repository interface {
 }
 
 type Publisher interface {
-	Publish(str string) error
+	Publish(str string)
 }
 
 type Marshal func(v any) ([]byte, error)
@@ -40,10 +40,7 @@ func (h *handler) Create(ctx context.Context, param interface{}) (interface{}, e
 		return nil, model.ErrorDiscover(err)
 	}
 
-	err = h.publisher.Publish(string(b))
-	if err != nil {
-		return nil, model.ErrorDiscover(err)
-	}
+	go h.publisher.Publish(string(b))
 
 	return model.NewResponse(0, 0, 1, []interface{}{request}), nil
 }
