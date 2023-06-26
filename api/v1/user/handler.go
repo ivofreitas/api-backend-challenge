@@ -38,6 +38,16 @@ func NewHandler(repository Repository,
 		secret:                 secret}
 }
 
+// Create
+// @Summary create a user.
+// @Param key body model.User true "request body"
+// @Tags user
+// @Accept json
+// @Product json
+// @Success 201 {object} model.Response{meta=model.Meta,records=[]model.CreateResponse}
+// @Failure 400 {object} model.ResponseError
+// @Failure 500 {object} model.ResponseError
+// @Router /user [post]
 func (h *handler) Create(ctx context.Context, param interface{}) (interface{}, error) {
 	request := param.(*model.User)
 	request.ID = uuid.New().String()
@@ -68,6 +78,16 @@ func (h *handler) Create(ctx context.Context, param interface{}) (interface{}, e
 	return model.NewResponse(0, 0, 1, []interface{}{response}), nil
 }
 
+// Login
+// @Summary login using a user.
+// @Param key body model.LoginRequest true "request body"
+// @Tags user
+// @Accept json
+// @Product json
+// @Success 201 {object} model.Response{meta=model.Meta,records=[]model.LoginResponse}
+// @Failure 400 {object} model.ResponseError
+// @Failure 500 {object} model.ResponseError
+// @Router /user/login [post]
 func (h *handler) Login(ctx context.Context, param interface{}) (interface{}, error) {
 	request := param.(*model.LoginRequest)
 

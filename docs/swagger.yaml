@@ -1,4 +1,25 @@
 definitions:
+  model.CreateResponse:
+    properties:
+      id:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+  model.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  model.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
   model.Meta:
     properties:
       limit:
@@ -7,26 +28,6 @@ definitions:
         type: integer
       record_count:
         type: integer
-    type: object
-  model.OverlappingRequest:
-    properties:
-      events:
-        items:
-          items:
-            type: integer
-          type: array
-        type: array
-    required:
-    - events
-    type: object
-  model.OverlappingResponse:
-    properties:
-      overlapping_events:
-        items:
-          items:
-            type: integer
-          type: array
-        type: array
     type: object
   model.Response:
     properties:
@@ -45,10 +46,69 @@ definitions:
       user_message:
         type: string
     type: object
+  model.Task:
+    properties:
+      id:
+        type: string
+      performed_at:
+        type: string
+      summary:
+        type: string
+    required:
+    - performed_at
+    - summary
+    type: object
+  model.User:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - role
+    - username
+    type: object
 info:
   contact: {}
 paths:
-  /event:
+  /task:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                meta:
+                  $ref: '#/definitions/model.Meta'
+                records:
+                  items:
+                    $ref: '#/definitions/model.Task'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ResponseError'
+      security:
+      - Authorization: []
+      summary: list all tasks.
+      tags:
+      - task
     post:
       consumes:
       - application/json
@@ -58,7 +118,7 @@ paths:
         name: key
         required: true
         schema:
-          $ref: '#/definitions/model.OverlappingRequest'
+          $ref: '#/definitions/model.Task'
       responses:
         "201":
           description: Created
@@ -70,7 +130,7 @@ paths:
                   $ref: '#/definitions/model.Meta'
                 records:
                   items:
-                    $ref: '#/definitions/model.OverlappingResponse'
+                    $ref: '#/definitions/model.Task'
                   type: array
               type: object
         "400":
@@ -81,7 +141,86 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.ResponseError'
-      summary: calculate overlapping events.
+      security:
+      - Authorization: []
+      summary: create a task.
       tags:
-      - event
+      - task
+  /user:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request body
+        in: body
+        name: key
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                meta:
+                  $ref: '#/definitions/model.Meta'
+                records:
+                  items:
+                    $ref: '#/definitions/model.CreateResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ResponseError'
+      summary: create a user.
+      tags:
+      - user
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request body
+        in: body
+        name: key
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.Response'
+            - properties:
+                meta:
+                  $ref: '#/definitions/model.Meta'
+                records:
+                  items:
+                    $ref: '#/definitions/model.LoginResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ResponseError'
+      summary: login using a user.
+      tags:
+      - user
+securityDefinitions:
+  Authorization:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

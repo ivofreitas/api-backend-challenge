@@ -2,7 +2,7 @@
   "server": {
     "host": "localhost",
     "port": "8088",
-    "base_path": "/v1/sword"
+    "base_path": "/v1"
   },
   "authorization": {
     "secret": "8c08f857b7abb060bdd52ec1eebac7c3"

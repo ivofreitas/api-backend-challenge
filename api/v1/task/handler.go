@@ -29,6 +29,17 @@ func NewHandler(repository Repository, publisher Publisher, marshal Marshal) *ha
 	return &handler{repository: repository, publisher: publisher, marshal: marshal}
 }
 
+// Create
+// @Summary create a task.
+// @Param key body model.Task true "request body"
+// @Tags task
+// @Security Authorization
+// @Accept json
+// @Product json
+// @Success 201 {object} model.Response{meta=model.Meta,records=[]model.Task}
+// @Failure 400 {object} model.ResponseError
+// @Failure 500 {object} model.ResponseError
+// @Router /task [post]
 func (h *handler) Create(ctx gocontext.Context, param interface{}) (interface{}, error) {
 	request := param.(*model.Task)
 	request.ID = uuid.New().String()
@@ -48,6 +59,15 @@ func (h *handler) Create(ctx gocontext.Context, param interface{}) (interface{},
 	return model.NewResponse(0, 0, 1, []interface{}{request}), nil
 }
 
+// List
+// @Summary list all tasks.
+// @Tags task
+// @Security Authorization
+// @Product json
+// @Success 200 {object} model.Response{meta=model.Meta,records=[]model.Task}
+// @Failure 400 {object} model.ResponseError
+// @Failure 500 {object} model.ResponseError
+// @Router /task [get]
 func (h *handler) List(ctx gocontext.Context, param interface{}) (interface{}, error) {
 
 	var (

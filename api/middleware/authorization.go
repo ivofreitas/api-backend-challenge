@@ -11,54 +11,53 @@ import (
 
 func Authorize(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		if strings.HasSuffix(c.Path(), "/health") || strings.HasSuffix(c.Path(), "/login") || strings.HasSuffix(c.Path(), "/user") {
-			return next(c)
+		if strings.HasSuffix(c.Path(), "/task") {
+
+			authHeader := c.Request().Header.Get("Authorization")
+			if authHeader == "" {
+				responseErr := model.ErrorDiscover(model.Unauthorized{DeveloperMessage: "Missing authorization header"})
+				return c.JSON(responseErr.StatusCode, responseErr)
+			}
+
+			tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+			if tokenString == authHeader {
+				responseErr := model.ErrorDiscover(model.Unauthorized{DeveloperMessage: "Invalid token format"})
+				return c.JSON(responseErr.StatusCode, responseErr)
+			}
+
+			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+				return []byte(config.GetEnv().Authorization.Secret), nil
+			})
+
+			if err != nil || !token.Valid {
+				responseErr := model.ErrorDiscover(model.Unauthorized{DeveloperMessage: "Make sure the header parameter Authorization is valid"})
+				return c.JSON(responseErr.StatusCode, responseErr)
+			}
+
+			claims, ok := token.Claims.(jwt.MapClaims)
+			if !ok {
+				responseErr := model.ErrorDiscover(model.Unauthorized{DeveloperMessage: "Missing JWT Claims"})
+				return c.JSON(responseErr.StatusCode, responseErr)
+			}
+
+			username, ok := claims["user"].(string)
+			if !ok {
+				responseErr := model.ErrorDiscover(model.Unauthorized{DeveloperMessage: "Missing JWT Username"})
+				return c.JSON(responseErr.StatusCode, responseErr)
+			}
+
+			role, ok := claims["role"].(string)
+			if !ok {
+				responseErr := model.ErrorDiscover(model.Unauthorized{DeveloperMessage: "Missing JWT Role"})
+				return c.JSON(responseErr.StatusCode, responseErr)
+			}
+
+			ctx := c.Request().Context()
+			ctx = context.Set(ctx, "username", username)
+			ctx = context.Set(ctx, "role", role)
+			c.SetRequest(c.Request().WithContext(ctx))
+
 		}
-
-		authHeader := c.Request().Header.Get("Authorization")
-		if authHeader == "" {
-			responseErr := model.ErrorDiscover(model.Unauthorized{DeveloperMessage: "Missing authorization header"})
-			return c.JSON(responseErr.StatusCode, responseErr)
-		}
-
-		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		if tokenString == authHeader {
-			responseErr := model.ErrorDiscover(model.Unauthorized{DeveloperMessage: "Invalid token format"})
-			return c.JSON(responseErr.StatusCode, responseErr)
-		}
-
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte(config.GetEnv().Authorization.Secret), nil
-		})
-
-		if err != nil || !token.Valid {
-			responseErr := model.ErrorDiscover(model.Unauthorized{DeveloperMessage: "Make sure the header parameter Authorization is valid"})
-			return c.JSON(responseErr.StatusCode, responseErr)
-		}
-
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			responseErr := model.ErrorDiscover(model.Unauthorized{DeveloperMessage: "Missing JWT Claims"})
-			return c.JSON(responseErr.StatusCode, responseErr)
-		}
-
-		username, ok := claims["user"].(string)
-		if !ok {
-			responseErr := model.ErrorDiscover(model.Unauthorized{DeveloperMessage: "Missing JWT Username"})
-			return c.JSON(responseErr.StatusCode, responseErr)
-		}
-
-		role, ok := claims["role"].(string)
-		if !ok {
-			responseErr := model.ErrorDiscover(model.Unauthorized{DeveloperMessage: "Missing JWT Role"})
-			return c.JSON(responseErr.StatusCode, responseErr)
-		}
-
-		ctx := c.Request().Context()
-		ctx = context.Set(ctx, "username", username)
-		ctx = context.Set(ctx, "role", role)
-		c.SetRequest(c.Request().WithContext(ctx))
-
 		return next(c)
 	}
 }

@@ -16,15 +16,69 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/event": {
+        "/task": {
+            "get": {
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "tags": [
+                    "task"
+                ],
+                "summary": "list all tasks.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "meta": {
+                                            "$ref": "#/definitions/model.Meta"
+                                        },
+                                        "records": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.Task"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseError"
+                        }
+                    }
+                }
+            },
             "post": {
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
-                    "event"
+                    "task"
                 ],
-                "summary": "calculate overlapping events.",
+                "summary": "create a task.",
                 "parameters": [
                     {
                         "description": "request body",
@@ -32,7 +86,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.OverlappingRequest"
+                            "$ref": "#/definitions/model.Task"
                         }
                     }
                 ],
@@ -53,7 +107,127 @@ const docTemplate = `{
                                         "records": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/model.OverlappingResponse"
+                                                "$ref": "#/definitions/model.Task"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "create a user.",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "key",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "meta": {
+                                            "$ref": "#/definitions/model.Meta"
+                                        },
+                                        "records": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.CreateResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/login": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "login using a user.",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "key",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "meta": {
+                                            "$ref": "#/definitions/model.Meta"
+                                        },
+                                        "records": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.LoginResponse"
                                             }
                                         }
                                     }
@@ -78,6 +252,39 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.CreateResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Meta": {
             "type": "object",
             "properties": {
@@ -89,37 +296,6 @@ const docTemplate = `{
                 },
                 "record_count": {
                     "type": "integer"
-                }
-            }
-        },
-        "model.OverlappingRequest": {
-            "type": "object",
-            "required": [
-                "events"
-            ],
-            "properties": {
-                "events": {
-                    "type": "array",
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    }
-                }
-            }
-        },
-        "model.OverlappingResponse": {
-            "type": "object",
-            "properties": {
-                "overlapping_events": {
-                    "type": "array",
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    }
                 }
             }
         },
@@ -148,6 +324,59 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "model.Task": {
+            "type": "object",
+            "required": [
+                "performed_at",
+                "summary"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "performed_at": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "required": [
+                "password",
+                "role",
+                "username"
+            ],
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "Authorization": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
