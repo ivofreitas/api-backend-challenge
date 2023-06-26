@@ -51,15 +51,6 @@ func TestCreate(t *testing.T) {
 			MarshalErr:    marshalErr,
 			ExpectedError: marshalErr,
 		},
-		{
-			Name: "Test Case 4",
-			Request: &model.Task{
-				Summary:     "So sad! Publisher is going to fail!",
-				PerformedAt: time.Now(),
-			},
-			PublisherErr:  publisherErr,
-			ExpectedError: publisherErr,
-		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {

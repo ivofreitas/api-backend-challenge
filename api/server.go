@@ -128,9 +128,5 @@ func (s *Server) initDB() {
 }
 
 func (s *Server) initPublisher() {
-	publisher, err := kafka.NewPublisher()
-	if err != nil {
-		s.logger.WithError(err).Fatal()
-	}
-	s.publisher = publisher
+	s.publisher = kafka.NewPublisher()
 }
