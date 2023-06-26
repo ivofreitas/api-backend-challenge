@@ -1,17 +1,18 @@
 package middleware
 
 import (
-	"context"
+	gocontext "context"
 	"encoding/json"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
+	"github.com/sword/api-backend-challenge/context"
 	"github.com/sword/api-backend-challenge/log"
 	"github.com/sword/api-backend-challenge/model"
 	"net/http"
 	"reflect"
 )
 
-type HandlerFn func(ctx context.Context, param interface{}) (interface{}, error)
+type HandlerFn func(ctx gocontext.Context, param interface{}) (interface{}, error)
 
 type controller struct {
 	fn         HandlerFn
@@ -27,7 +28,7 @@ func NewController(fn HandlerFn, httpStatus int, param interface{}) *controller 
 func (ctrl *controller) Handle(c echo.Context) error {
 
 	ctx := c.Request().Context()
-	httpLog := log.Get(ctx, log.HTTPKey).(*log.HTTP)
+	httpLog := context.Get(ctx, log.HTTPKey).(*log.HTTP)
 
 	if ctrl.param != nil {
 		ctrl.param = reflect.New(reflect.TypeOf(ctrl.param).Elem()).Interface()

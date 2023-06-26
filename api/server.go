@@ -1,7 +1,7 @@
 package api
 
 import (
-	"context"
+	gocontext "context"
 	"database/sql"
 	"fmt"
 	"github.com/labstack/echo/v4"
@@ -10,6 +10,7 @@ import (
 	"github.com/sword/api-backend-challenge/api/middleware"
 	"github.com/sword/api-backend-challenge/api/v1"
 	"github.com/sword/api-backend-challenge/config"
+	"github.com/sword/api-backend-challenge/context"
 	"github.com/sword/api-backend-challenge/db/mysql"
 	"github.com/sword/api-backend-challenge/log"
 	"github.com/sword/api-backend-challenge/message_broker/kafka"
@@ -75,7 +76,7 @@ func (s *Server) watchStop() {
 }
 
 func (s *Server) stop() {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := gocontext.WithTimeout(gocontext.Background(), time.Second)
 	defer cancel()
 
 	s.logger.Info("Server is stopping...")
@@ -108,7 +109,7 @@ func (s *Server) initHttp() {
 			return
 		}
 
-		httpLog := log.Get(c.Request().Context(), log.HTTPKey).(*log.HTTP)
+		httpLog := context.Get(c.Request().Context(), log.HTTPKey).(*log.HTTP)
 		httpLog.Level = logrus.WarnLevel
 
 		responseErr := model.ErrorDiscover(err)

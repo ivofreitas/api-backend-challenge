@@ -3,6 +3,7 @@ package middleware
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"github.com/sword/api-backend-challenge/context"
 	"github.com/sword/api-backend-challenge/log"
 	"strings"
 	"time"
@@ -26,7 +27,7 @@ func Logger(next echo.HandlerFunc) echo.HandlerFunc {
 		ctx := log.InitParams(c.Request().Context())
 		c.SetRequest(c.Request().WithContext(ctx))
 
-		httpLog := log.Get(ctx, log.HTTPKey).(*log.HTTP)
+		httpLog := context.Get(ctx, log.HTTPKey).(*log.HTTP)
 		req := c.Request()
 		httpLog.Module = module
 		httpLog.Level = logrus.ErrorLevel

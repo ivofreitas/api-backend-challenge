@@ -4,6 +4,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/sword/api-backend-challenge/config"
+	"github.com/sword/api-backend-challenge/context"
 	"github.com/sword/api-backend-challenge/model"
 	"strings"
 )
@@ -53,8 +54,10 @@ func Authorize(next echo.HandlerFunc) echo.HandlerFunc {
 			return c.JSON(responseErr.StatusCode, responseErr)
 		}
 
-		c.Set("user", username)
-		c.Set("role", role)
+		ctx := c.Request().Context()
+		ctx = context.Set(ctx, "username", username)
+		ctx = context.Set(ctx, "role", role)
+		c.SetRequest(c.Request().WithContext(ctx))
 
 		return next(c)
 	}
@@ -63,8 +66,8 @@ func Authorize(next echo.HandlerFunc) echo.HandlerFunc {
 func CheckRole(allowedRoles ...string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			role := c.Get("role").(string)
-			role = strings.ToLower(role)
+			ctx := c.Request().Context()
+			role := context.Get(ctx, "role").(string)
 
 			isAllowed := false
 			for _, allowedRole := range allowedRoles {

@@ -1,14 +1,16 @@
 package task
 
 import (
-	"context"
+	gocontext "context"
 	"github.com/google/uuid"
+	"github.com/sword/api-backend-challenge/context"
 	"github.com/sword/api-backend-challenge/model"
 )
 
 type Repository interface {
-	Create(ctx context.Context, task *model.Task) error
-	List(ctx context.Context) ([]*model.Task, error)
+	Create(ctx gocontext.Context, task *model.Task, username string) error
+	List(ctx gocontext.Context) ([]*model.Task, error)
+	ListByUsername(ctx gocontext.Context, username string) ([]*model.Task, error)
 }
 
 type Publisher interface {
@@ -27,11 +29,12 @@ func NewHandler(repository Repository, publisher Publisher, marshal Marshal) *ha
 	return &handler{repository: repository, publisher: publisher, marshal: marshal}
 }
 
-func (h *handler) Create(ctx context.Context, param interface{}) (interface{}, error) {
+func (h *handler) Create(ctx gocontext.Context, param interface{}) (interface{}, error) {
 	request := param.(*model.Task)
 	request.ID = uuid.New().String()
+	username := context.Get(ctx, "username").(string)
 
-	if err := h.repository.Create(ctx, request); err != nil {
+	if err := h.repository.Create(ctx, request, username); err != nil {
 		return nil, model.ErrorDiscover(err)
 	}
 
@@ -45,9 +48,21 @@ func (h *handler) Create(ctx context.Context, param interface{}) (interface{}, e
 	return model.NewResponse(0, 0, 1, []interface{}{request}), nil
 }
 
-func (h *handler) List(ctx context.Context, param interface{}) (interface{}, error) {
+func (h *handler) List(ctx gocontext.Context, param interface{}) (interface{}, error) {
 
-	tasks, err := h.repository.List(ctx)
+	var (
+		tasks []*model.Task
+		err   error
+		role  = context.Get(ctx, "role").(string)
+	)
+
+	switch role {
+	case model.Manager:
+		tasks, err = h.repository.List(ctx)
+	case model.Tech:
+		username := context.Get(ctx, "username").(string)
+		tasks, err = h.repository.ListByUsername(ctx, username)
+	}
 	if err != nil {
 		return nil, model.ErrorDiscover(err)
 	}

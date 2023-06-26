@@ -2,6 +2,11 @@ package model
 
 import "time"
 
+const (
+	Manager = "manager"
+	Tech    = "technician"
+)
+
 type LoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
