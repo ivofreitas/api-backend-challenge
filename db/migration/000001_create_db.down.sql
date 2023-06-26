@@ -1,4 +1,0 @@
-DROP TABLE IF EXISTS `sword.tasks`;
-DROP TABLE IF EXISTS `sword.users`;
-DROP TABLE IF EXISTS `sword.roles`;
-DROP DATABASE IF EXISTS `sword`;

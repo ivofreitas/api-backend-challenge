@@ -10,12 +10,6 @@ test:
 cover:
 	go test -cover ./...
 
-migrate-up:
-	go run main.go migrate up
-
-migrate-down:
-	go run main.go migrate down
-
 local-up:
 	docker-compose up -d
 

@@ -44,6 +44,8 @@ services:
       MYSQL_DATABASE: "sword"
     ports:
       - "3306:3306"
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
 
   managerer:
     image: adminer
