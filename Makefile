@@ -1,6 +1,5 @@
 install:
 	go get ./...
-	swag init
 
 start:
 	go run main.go
@@ -22,3 +21,7 @@ local-up:
 
 local-down:
 	docker-compose down --remove-orphans
+
+configure:
+	cp config/example.env config/.env
+	swag init

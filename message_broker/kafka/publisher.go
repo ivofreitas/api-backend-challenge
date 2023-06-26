@@ -19,7 +19,7 @@ func NewPublisher() *Publisher {
 
 	s := &Publisher{}
 	s.kafkaTopic = config.Topic
-	s.kafkaAddress = config.Brokers
+	s.kafkaAddress = []string{config.Broker}
 	s.logger = log.NewEntry()
 
 	s.connect()

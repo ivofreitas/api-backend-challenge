@@ -13,14 +13,23 @@ This application allows managers and technicians to keep track of tasks.
    ```
    make install
    ```
+
+2. Configure the project:
+
+   ```
+   make configure
+   ```
+
+   Then edit `config/.env` with your desired configuration values.
    
-2. Start local environment:
+
+3. Start local environment:
 
    ```
    make local-up
    ```
 
-3. Start the project:
+4. Start the project:
 
    ```
    make start
@@ -29,13 +38,13 @@ This application allows managers and technicians to keep track of tasks.
    The project should now be running at http://localhost:8088.
 
 
-4. Run unit tests:
+5. Run unit tests:
 
    ```
    make test
    ```
    
-5. Run test coverage:
+6. Run test coverage:
 
    ```
    make cover

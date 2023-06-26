@@ -1,7 +1,9 @@
 package config
 
 import (
+	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
+	"log"
 	"sync"
 	"time"
 )
@@ -53,8 +55,8 @@ type MySQL struct {
 
 // Kafka - message broker information
 type Kafka struct {
-	Brokers []string `mapstructure:"brokers"`
-	Topic   string   `mapstructure:"topic"`
+	Broker string `mapstructure:"broker"`
+	Topic  string `mapstructure:"topic"`
 }
 
 var (
@@ -66,17 +68,37 @@ var (
 func GetEnv() *Env {
 
 	once.Do(func() {
-		viper.AddConfigPath("./config")
-		viper.SetConfigName("config")
-		viper.SetConfigType("json")
 
 		viper.AutomaticEnv()
-
-		if err := viper.ReadInConfig(); err != nil {
-			return
+		if err := godotenv.Load("config/.env"); err != nil {
+			log.Println(err)
 		}
 
-		viper.Unmarshal(&env)
+		env = new(Env)
+		env.Server.Host = viper.GetString("SERVER_HOST")
+		env.Server.BasePath = viper.GetString("SERVER_BASE_PATH")
+		env.Server.Port = viper.GetString("SERVER_PORT")
+
+		env.Authorization.Secret = viper.GetString("AUTHORIZATION_SECRET")
+
+		env.Log.Enabled = viper.GetBool("LOG_ENABLED")
+		env.Log.Level = viper.GetString("LOG_LEVEL")
+
+		env.Doc.Title = viper.GetString("DOC_TITLE")
+		env.Doc.Description = viper.GetString("DOC_DESCRIPTION")
+		env.Doc.Enabled = viper.GetBool("DOC_ENABLED")
+		env.Doc.Version = viper.GetString("DOC_VERSION")
+
+		env.MySQL.Username = viper.GetString("MYSQL_USERNAME")
+		env.MySQL.Password = viper.GetString("MYSQL_PASSWORD")
+		env.MySQL.Host = viper.GetString("MYSQL_HOST")
+		env.MySQL.Database = viper.GetString("MYSQL_DATABASE")
+		env.MySQL.PoolConn = viper.GetInt("MYSQL_POOL_CONN")
+		env.MySQL.ConnLifetime = viper.GetDuration("MYSQL_CONN_LIFETIME")
+
+		env.Kafka.Broker = viper.GetString("KAFKA_BROKER")
+		env.Kafka.Topic = viper.GetString("KAFKA_TOPIC")
+
 	})
 	return env
 }

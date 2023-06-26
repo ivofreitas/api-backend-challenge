@@ -1,0 +1,75 @@
+## Defaults
+namespace: local
+
+name: api-backend-challenge
+
+image:
+  name: my-container-registry/api-backend-challenge
+  tag: "my-tag"
+  pullPolicy: Always
+
+env:
+  - name: SERVER_HOST
+    value: <server_host>
+  - name: SERVER_BASE_PATH
+    value: "/v1"
+  - name: SERVER_PORT
+    value: "8088"
+  - name: AUTHORIZATION_SECRET
+    value: <secret>
+  - name: LOG_ENABLED
+    value: true
+  - name: LOG_LEVEL
+    value: "info"
+  - name: DOC_TITLE
+    value: "api-backend-challenge"
+  - name: DOC_DESCRIPTION
+    value: ""
+  - name: DOC_ENABLED
+    value: true
+  - name: DOC_VERSION
+    value: "1.0.0"
+  - name: MYSQL_USERNAME
+    value: "user"
+  - name: MYSQL_PASSWORD
+    value: <db_user_password>
+  - name: MYSQL_HOST
+    value: <db_host>
+  - name: MYSQL_DATABASE
+    value: "sword"
+  - name: MYSQL_POOL_CONN
+    value: 5
+  - name: MYSQL_CONN_LIFETIME
+    value: "60s"
+  - name: KAFKA_BROKER
+    value: <broker_host>
+  - name: KAFKA_TOPIC
+    value: "sword.task"
+
+### Deployment
+deployment:
+  replicas: 3
+
+### Ingress
+ingress:
+  rules:
+    - host: mysubdomain.mysite.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: api-backend-challenge-service
+                port:
+                  number: 8080
+            path: /v1/*
+            pathType: ImplementationSpecific
+
+### Service
+service:
+  type: NodePort
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  sessionAffinity: None
+  ports: 80
+  protocol: TCP
+  targetPort: 80
