@@ -85,7 +85,7 @@ Content-Type: application/json
     "records": [
         {
             "id": "125edfd8-a7bd-4ddd-8429-278e935def82",
-            "username": "john.doee",
+            "username": "john.doe",
             "role": "manager"
         }
     ]
@@ -227,6 +227,7 @@ Possible HTTP status codes for errors include:
 
 - `400 Bad Request` for invalid request data
 - `401 Unauthorized` missing a valid authorization token
+- `404 Not Found` resource not found
 - `409 Unauthorized` username already present in the database
 - `500 Internal Server Error` for server-side errors
 
