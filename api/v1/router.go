@@ -3,6 +3,8 @@ package v1
 import (
 	"database/sql"
 	"encoding/json"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/sword/api-backend-challenge/api/middleware"
 	"github.com/sword/api-backend-challenge/api/swagger"
@@ -12,15 +14,16 @@ import (
 	"github.com/sword/api-backend-challenge/api/v1/user"
 	usermysql "github.com/sword/api-backend-challenge/api/v1/user/mysql"
 	"github.com/sword/api-backend-challenge/config"
+	"github.com/sword/api-backend-challenge/cypher"
 	"github.com/sword/api-backend-challenge/message_broker/kafka"
 	"github.com/sword/api-backend-challenge/model"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
 )
 
 type Option struct {
 	DB        *sql.DB
 	Publisher *kafka.Publisher
+	Crypto    *cypher.Crypto
 }
 
 func Register(g *echo.Group, opts Option) {
@@ -40,7 +43,7 @@ func Register(g *echo.Group, opts Option) {
 	g.GET("/health", health.Handle)
 
 	taskRepo := taskmysql.NewRepository(opts.DB)
-	taskHandler := task.NewHandler(taskRepo, opts.Publisher, json.Marshal)
+	taskHandler := task.NewHandler(taskRepo, opts.Publisher, json.Marshal, opts.Crypto)
 	taskCreate := middleware.NewController(taskHandler.Create, http.StatusCreated, new(model.Task))
 	taskList := middleware.NewController(taskHandler.List, http.StatusOK, nil)
 

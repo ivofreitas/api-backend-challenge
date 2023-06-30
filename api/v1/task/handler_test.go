@@ -3,19 +3,23 @@ package task
 import (
 	gocontext "context"
 	"errors"
+	"testing"
+	"time"
+
 	"github.com/stretchr/testify/assert"
 	testifymock "github.com/stretchr/testify/mock"
 	"github.com/sword/api-backend-challenge/context"
 	"github.com/sword/api-backend-challenge/mock"
 	"github.com/sword/api-backend-challenge/model"
-	"testing"
-	"time"
 )
 
 var (
-	repositoryErr = errors.New("repository failed")
-	publisherErr  = errors.New("publisher failed")
-	marshalErr    = errors.New("marshal failed")
+	repositoryErr   = errors.New("repository failed")
+	publisherErr    = errors.New("publisher failed")
+	marshalErr      = errors.New("marshal failed")
+	cryptoErr       = errors.New("crypto failed")
+	encryptedResult = "encrypted"
+	decryptedResult = "decrypted"
 )
 
 const (
@@ -30,6 +34,8 @@ func TestCreate(t *testing.T) {
 		RepositoryErr error
 		MarshalErr    error
 		PublisherErr  error
+		CryptoResult  string
+		CryptoErr     error
 		ExpectedError error
 	}{
 		{
@@ -38,6 +44,7 @@ func TestCreate(t *testing.T) {
 				Summary:     "Hello manager. This is my summary",
 				PerformedAt: time.Now(),
 			},
+			CryptoResult: encryptedResult,
 		},
 		{
 			Name: "Test Case 2",
@@ -45,6 +52,7 @@ func TestCreate(t *testing.T) {
 				Summary:     "Hello technician. This is my summary",
 				PerformedAt: time.Now(),
 			},
+			CryptoResult: encryptedResult,
 		},
 		{
 			Name: "Test Case 3",
@@ -56,13 +64,13 @@ func TestCreate(t *testing.T) {
 			ExpectedError: repositoryErr,
 		},
 		{
-			Name: "Test Case 4",
+			Name: "Test Case 5",
 			Request: &model.Task{
-				Summary:     "So sad! Marshal is going to fail!",
+				Summary:     "So sad! Crypto is going to fail!",
 				PerformedAt: time.Now(),
 			},
-			MarshalErr:    marshalErr,
-			ExpectedError: marshalErr,
+			CryptoErr:     cryptoErr,
+			ExpectedError: cryptoErr,
 		},
 	}
 	for _, tc := range testCases {
@@ -86,7 +94,12 @@ func TestCreate(t *testing.T) {
 				On("Publish", testifymock.Anything).
 				Return(tc.PublisherErr)
 
-			hdl := NewHandler(repositoryMock, publisherMock, jsonMock.Marshal)
+			cryptoMock := &mock.CryptoMock{}
+			cryptoMock.
+				On("Encrypt", testifymock.Anything).
+				Return(tc.CryptoResult, tc.CryptoErr)
+
+			hdl := NewHandler(repositoryMock, publisherMock, jsonMock.Marshal, cryptoMock)
 			response, err := hdl.Create(ctx, tc.Request)
 			if tc.ExpectedError != nil {
 				assert.Error(t, err)
@@ -108,6 +121,8 @@ func TestList(t *testing.T) {
 		RepositoryResult []*model.Task
 		RepositoryErr    error
 		PublisherErr     error
+		CryptoResult     string
+		CryptoErr        error
 		ExpectedError    error
 	}{
 		{
@@ -129,7 +144,8 @@ func TestList(t *testing.T) {
 					PerformedAt: time.Now(),
 				},
 			},
-			Role: model.Manager,
+			Role:         model.Manager,
+			CryptoResult: decryptedResult,
 		},
 		{
 			Name: "Test Case 2",
@@ -140,7 +156,8 @@ func TestList(t *testing.T) {
 					PerformedAt: time.Now(),
 				},
 			},
-			Role: model.Tech,
+			Role:         model.Tech,
+			CryptoResult: decryptedResult,
 		},
 		{
 			Name:          "Test Case 2",
@@ -152,6 +169,19 @@ func TestList(t *testing.T) {
 			Name:             "Test Case 3",
 			RepositoryResult: []*model.Task{},
 			ExpectedError:    errors.New("no records in the database"),
+		},
+		{
+			Name: "Test Case 2",
+			RepositoryResult: []*model.Task{
+				{
+					ID:          "1",
+					Summary:     "Hello. This the first record!",
+					PerformedAt: time.Now(),
+				},
+			},
+			Role:          model.Tech,
+			CryptoErr:     cryptoErr,
+			ExpectedError: cryptoErr,
 		},
 	}
 	for _, tc := range testCases {
@@ -174,7 +204,12 @@ func TestList(t *testing.T) {
 
 			jsonMock := mock.JsonMock{}
 
-			hdl := NewHandler(repositoryMock, &mock.PublisherMock{}, jsonMock.Marshal)
+			cryptoMock := &mock.CryptoMock{}
+			cryptoMock.
+				On("Decrypt", testifymock.Anything).
+				Return(tc.CryptoResult, tc.CryptoErr)
+
+			hdl := NewHandler(repositoryMock, &mock.PublisherMock{}, jsonMock.Marshal, cryptoMock)
 			response, err := hdl.List(ctx, nil)
 			if tc.ExpectedError != nil {
 				assert.Error(t, err)

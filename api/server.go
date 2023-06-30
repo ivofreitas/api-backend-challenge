@@ -4,6 +4,12 @@ import (
 	gocontext "context"
 	"database/sql"
 	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/sirupsen/logrus"
@@ -11,21 +17,18 @@ import (
 	"github.com/sword/api-backend-challenge/api/v1"
 	"github.com/sword/api-backend-challenge/config"
 	"github.com/sword/api-backend-challenge/context"
+	"github.com/sword/api-backend-challenge/cypher"
 	"github.com/sword/api-backend-challenge/db/mysql"
 	"github.com/sword/api-backend-challenge/log"
 	"github.com/sword/api-backend-challenge/message_broker/kafka"
 	"github.com/sword/api-backend-challenge/model"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 type Server struct {
 	http      *echo.Echo
 	db        *sql.DB
 	publisher *kafka.Publisher
+	crypto    *cypher.Crypto
 	logger    *logrus.Entry
 	signal    chan struct{}
 }
@@ -34,6 +37,7 @@ func NewServer() *Server {
 	log.Init()
 
 	return &Server{
+		crypto: cypher.NewCrypto(),
 		logger: log.NewEntry(),
 		signal: make(chan struct{}),
 	}
@@ -58,7 +62,7 @@ func (s *Server) start() {
 
 	s.initPublisher()
 
-	v1.Register(s.http.Group("/v1"), v1.Option{DB: s.db, Publisher: s.publisher})
+	v1.Register(s.http.Group("/v1"), v1.Option{DB: s.db, Publisher: s.publisher, Crypto: s.crypto})
 
 	addr := fmt.Sprintf(":%s", serverConfig.Port)
 	go func() {

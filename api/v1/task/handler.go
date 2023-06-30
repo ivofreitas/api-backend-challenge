@@ -2,6 +2,7 @@ package task
 
 import (
 	gocontext "context"
+
 	"github.com/google/uuid"
 	"github.com/sword/api-backend-challenge/context"
 	"github.com/sword/api-backend-challenge/model"
@@ -17,16 +18,22 @@ type Publisher interface {
 	Publish(str string)
 }
 
+type Crypto interface {
+	Encrypt(text string) (string, error)
+	Decrypt(text string) (string, error)
+}
+
 type Marshal func(v any) ([]byte, error)
 
 type handler struct {
 	repository Repository
 	publisher  Publisher
 	marshal    Marshal
+	crypto     Crypto
 }
 
-func NewHandler(repository Repository, publisher Publisher, marshal Marshal) *handler {
-	return &handler{repository: repository, publisher: publisher, marshal: marshal}
+func NewHandler(repository Repository, publisher Publisher, marshal Marshal, crypto Crypto) *handler {
+	return &handler{repository: repository, publisher: publisher, marshal: marshal, crypto: crypto}
 }
 
 // Create
@@ -44,6 +51,12 @@ func (h *handler) Create(ctx gocontext.Context, param interface{}) (interface{},
 	request := param.(*model.Task)
 	request.ID = uuid.New().String()
 	username := context.Get(ctx, "username").(string)
+
+	encryptedSummary, err := h.crypto.Encrypt(request.Summary)
+	if err != nil {
+		return nil, model.ErrorDiscover(err)
+	}
+	request.Summary = encryptedSummary
 
 	if err := h.repository.Create(ctx, request, username); err != nil {
 		return nil, model.ErrorDiscover(err)
@@ -89,6 +102,14 @@ func (h *handler) List(ctx gocontext.Context, param interface{}) (interface{}, e
 
 	if len(tasks) == 0 {
 		return nil, model.ErrorDiscover(model.NotFound{DeveloperMessage: "no records in the database"})
+	}
+
+	for _, task := range tasks {
+		decryptedSummary, err := h.crypto.Decrypt(task.Summary)
+		if err != nil {
+			return nil, model.ErrorDiscover(err)
+		}
+		task.Summary = decryptedSummary
 	}
 
 	return model.NewResponse(0, 0, len(tasks), []interface{}{tasks}), nil

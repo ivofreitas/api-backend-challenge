@@ -1,62 +1,69 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
-	"github.com/spf13/viper"
 	"log"
 	"sync"
 	"time"
+
+	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
 )
 
 // Env values
 type Env struct {
-	Server        Server        `mapstructure:"server"`
-	Authorization Authorization `mapstructure:"authorization"`
-	Log           Log           `mapstructure:"log"`
-	Doc           Doc           `mapstructure:"doc"`
-	MySQL         MySQL         `mapstructure:"mysql"`
-	Kafka         Kafka         `mapstructure:"kafka"`
+	Server        Server
+	Authorization Authorization
+	Log           Log
+	Doc           Doc
+	MySQL         MySQL
+	Kafka         Kafka
+	Security      Security
 }
 
 // Server config
 type Server struct {
-	Host     string `mapstructure:"host"`
-	BasePath string `mapstructure:"base_path"`
-	Port     string `mapstructure:"port"`
+	Host     string
+	BasePath string
+	Port     string
 }
 
 type Authorization struct {
-	Secret string `mapstructure:"secret"`
+	Secret string
 }
 
 // Log config
 type Log struct {
-	Enabled bool   `mapstructure:"enabled"`
-	Level   string `mapstructure:"level"`
+	Enabled bool
+	Level   string
 }
 
 // Doc - swagger information
 type Doc struct {
-	Title       string `mapstructure:"title"`
-	Description string `mapstructure:"description"`
-	Enabled     bool   `mapstructure:"enabled"`
-	Version     string `mapstructure:"version"`
+	Title       string
+	Description string
+	Enabled     bool
+	Version     string
 }
 
 // MySQL - db conn information
 type MySQL struct {
-	Username     string        `mapstructure:"username"`
-	Password     string        `mapstructure:"password"`
-	Host         string        `mapstructure:"host"`
-	Database     string        `mapstructure:"database"`
-	PoolConn     int           `mapstructure:"pool_conn"`
-	ConnLifetime time.Duration `mapstructure:"conn_lifetime"`
+	Username     string
+	Password     string
+	Host         string
+	Database     string
+	PoolConn     int
+	ConnLifetime time.Duration
 }
 
 // Kafka - message broker information
 type Kafka struct {
-	Broker string `mapstructure:"broker"`
-	Topic  string `mapstructure:"topic"`
+	Broker string
+	Topic  string
+}
+
+// Security - crypto sensitive information
+type Security struct {
+	SecretKey string
 }
 
 var (
@@ -99,6 +106,7 @@ func GetEnv() *Env {
 		env.Kafka.Broker = viper.GetString("KAFKA_BROKER")
 		env.Kafka.Topic = viper.GetString("KAFKA_TOPIC")
 
+		env.Security.SecretKey = viper.GetString("SECURITY_SECRET_KEY")
 	})
 	return env
 }
